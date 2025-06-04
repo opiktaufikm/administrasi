@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:admin/account/AccountPage.dart';
-import 'package:admin/chat/JawabanPage.dart';
+import 'package:admin/chat/PertanyaanPage.dart';
 
 class HomePagePenyuluh extends StatefulWidget {
   @override
@@ -11,9 +11,10 @@ class _HomePagePenyuluhState extends State<HomePagePenyuluh> {
   int _currentIndex = 0;
 
   final List<Widget> _pages = [
-    // JawabanPage(),
-    AccountPage(),   
-  ];
+  PertanyaanPage(),
+  AccountPage(),
+];
+
 
   @override
   Widget build(BuildContext context) {
