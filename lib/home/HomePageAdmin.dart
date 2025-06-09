@@ -15,7 +15,6 @@ class _HomePageAdminState extends State<HomePageAdmin> {
   final List<Widget> _pages = [
     DataClient(),
     DataPenyuluh(),
-    AccountPage(),
   ];
 
   @override

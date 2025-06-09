@@ -75,7 +75,11 @@ class _JawabanPageState extends State<JawabanPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Jawab Pertanyaan")),
+      appBar: AppBar(
+        backgroundColor: Colors.green,
+        elevation: 0,
+        foregroundColor: Colors.white,
+        title: const Text("Jawab Pertanyaan")),
       body: GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(), // dismiss keyboard
         child: SingleChildScrollView(
@@ -131,6 +135,11 @@ class _JawabanPageState extends State<JawabanPage> {
               const SizedBox(height: 16),
 
               ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green,
+                  foregroundColor: Colors.white,
+                  elevation: 0,
+                ),
                 onPressed: _submitJawaban,
                 child: const Text('Kirim Jawaban'),
               ),

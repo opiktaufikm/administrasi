@@ -10,50 +10,51 @@ class DataClient extends StatefulWidget {
 
 class _DataClientState extends State<DataClient> {
   final SupabaseClient supabase = Supabase.instance.client;
-  List<dynamic> clients = [];
+  List<dynamic> petaniList = [];
   bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _fetchClients();
+    _fetchPetani();
   }
 
-  Future<void> _fetchClients() async {
+  Future<void> _fetchPetani() async {
     setState(() => isLoading = true);
-    final user = supabase.auth.currentUser;
 
-    if (user == null) {
+    try {
+      final response = await supabase
+          .from('petani')
+          .select('id, username, email, created_at')
+          .order('created_at', ascending: false);
+
       setState(() {
-        clients = [];
+        petaniList = response;
         isLoading = false;
       });
-      return;
+    } catch (e) {
+      setState(() {
+        petaniList = [];
+        isLoading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Gagal mengambil data petani: $e')),
+      );
     }
-
-    final response = await supabase
-        .from('client')
-        .select()
-        .eq('user_id', user.id); // Ambil data berdasarkan user_id
-
-    setState(() {
-      clients = response;
-      isLoading = false;
-    });
   }
 
   void _showEditForm(int index) {
-    final client = clients[index];
+    final petani = petaniList[index];
     final TextEditingController _usernameController =
-        TextEditingController(text: client['username']);
+        TextEditingController(text: petani['username']);
     final TextEditingController _emailController =
-        TextEditingController(text: client['email']);
+        TextEditingController(text: petani['email']);
 
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Edit Client'),
+          title: const Text('Edit Petani'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -76,16 +77,16 @@ class _DataClientState extends State<DataClient> {
               child: const Text('Simpan'),
               onPressed: () async {
                 try {
-                  await supabase.from('client').update({
+                  await supabase.from('petani').update({
                     'username': _usernameController.text,
                     'email': _emailController.text,
-                  }).eq('id', client['id']);
+                  }).eq('id', petani['id']);
 
                   Navigator.of(context).pop();
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Data berhasil diperbarui')),
                   );
-                  _fetchClients();
+                  _fetchPetani();
                 } catch (e) {
                   Navigator.of(context).pop();
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -100,18 +101,18 @@ class _DataClientState extends State<DataClient> {
     );
   }
 
-  void _deleteClient(int index) async {
-    final client = clients[index];
+  void _deletePetani(int index) async {
+    final petani = petaniList[index];
 
     try {
-      await supabase.from('client').delete().eq('id', client['id']);
+      await supabase.from('petani').delete().eq('id', petani['id']);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Client berhasil dihapus')),
+        const SnackBar(content: Text('Petani berhasil dihapus')),
       );
-      _fetchClients();
+      _fetchPetani();
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Gagal menghapus client: $e')),
+        SnackBar(content: Text('Gagal menghapus petani: $e')),
       );
     }
   }
@@ -121,16 +122,16 @@ class _DataClientState extends State<DataClient> {
     return Scaffold(
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
-          : clients.isEmpty
-              ? const Center(child: Text('Tidak ada data client'))
+          : petaniList.isEmpty
+              ? const Center(child: Text('Tidak ada data petani'))
               : ListView.builder(
-                  itemCount: clients.length,
+                  itemCount: petaniList.length,
                   itemBuilder: (context, index) {
-                    final client = clients[index];
+                    final petani = petaniList[index];
 
                     return ListTile(
-                      title: Text(client['username'] ?? 'No Username'),
-                      subtitle: Text(client['email'] ?? 'No Email'),
+                      title: Text(petani['username'] ?? 'No Username'),
+                      subtitle: Text(petani['email'] ?? 'No Email'),
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -140,7 +141,7 @@ class _DataClientState extends State<DataClient> {
                           ),
                           IconButton(
                             icon: const Icon(Icons.delete, color: Colors.red),
-                            onPressed: () => _deleteClient(index),
+                            onPressed: () => _deletePetani(index),
                           ),
                         ],
                       ),
